@@ -1,5 +1,12 @@
 (function () {
 
+    // se o host for igual a http://learn1.inapplet.com:3000
+    if (window.location.hostname == 'learn1.inapplet.com') {
+        window.inlog_rum_host = "http://learn1.inapplet.com:3000"
+    } else {
+        window.inlog_rum_host = "https://receiver.rum.inlog.inapplet.com"
+    }
+
     async function getIP2() {
         let response = await fetch('https://freeipapi.com/api/json/')
         let data = response.status === 200 ? response.json() : false
@@ -16,13 +23,13 @@
         let data_res = {}
         let data1 = await getIP1()
 
-        if(data1 != false){
+        if (data1 != false) {
             return data1['country_code']
         }
 
         let data2 = await getIP2()
 
-        if(data2 != false){
+        if (data2 != false) {
             return data2['countryCode']
         }
 
@@ -35,7 +42,7 @@
 
         rum['domain'] = window.location.hostname
         let path = window.location.pathname.replace(/\/$/, '')
-        if(path == ''){
+        if (path == '') {
             path = '/'
         }
         rum['path'] = path;
@@ -52,11 +59,9 @@
             rum[pt_name] = parseFloat(pt.startTime.toFixed(2));
         }
 
-        console.log(paintTimings)
-
         let country = await loadCountry()
 
-        if(country != false){
+        if (country != false) {
             rum['country'] = country
         }
 
@@ -87,13 +92,11 @@
             rum['content_decoded_size'] = parseFloat(rum['content_decoded_size'].toFixed(4));
             rum['content_encoded_ratio'] = parseFloat(rum['content_encoded_ratio'].toFixed(4));
 
-            console.table(rum)
-
             let data = {}
 
             data = rum
 
-            var endpoint = 'http://learn1.inapplet.com:3000/v1/log/?project_id=' + window.inlog_project_id;
+            var endpoint = inlog_rum_host + '/v1/log/?project_id=' + window.inlog_project_id;
             var blob = new Blob([JSON.stringify(data)], { type: 'application/json; charset=UTF-8' });
             navigator.sendBeacon(endpoint, blob);
         });
@@ -138,14 +141,14 @@
         data['metric_id'] = metric_id
         data['value'] = value
         data['domain'] = window.location.hostname
-        
+
         let path = window.location.pathname.replace(/\/$/, '')
-        if(path == ''){
+        if (path == '') {
             path = '/'
         }
         data['path'] = path;
 
-        var endpoint = 'http://learn1.inapplet.com:3000/v1/vitals/?project_id=' + window.inlog_project_id;
+        var endpoint = inlog_rum_host + '/v1/vitals/?project_id=' + window.inlog_project_id;
         var blob = new Blob([JSON.stringify(data)], { type: 'application/json; charset=UTF-8' });
         navigator.sendBeacon(endpoint, blob);
     }
